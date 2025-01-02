@@ -1,12 +1,14 @@
 package com.behindmedia.euler.solutions
 
-import com.behindmedia.euler.common.Solution
+import com.behindmedia.euler.common.SolutionWithInput
 import com.behindmedia.euler.common.max
 
-class LargestPrimeFactor: Solution<Long> {
+class LargestPrimeFactor: SolutionWithInput<Long, Long> {
 
-    override fun run(): Long {
-        var number = 600851475143L
+    fun run() = run(input = 600851475143L)
+
+    override fun run(input: Long): Long {
+        var number = input
 
         // Divide the number by each prime we know
         val factors = mutableListOf<Long>()

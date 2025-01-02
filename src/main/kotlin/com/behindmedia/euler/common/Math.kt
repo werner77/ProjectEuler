@@ -405,14 +405,16 @@ class Primes(maxNumber: Int) {
         if (n <= 1L) {
             return false
         }
-        if (n < sieves.size) {
-            return sieves[n.toInt()] == 0
+        return if (n < sieves.size) {
+            sieves[n.toInt()] == 0
+        } else if (sieves.size > 23) {
+            isPrimeMillerRabinLarge(n)
         } else {
-            return isPrimeMillerRabin64(n)
+            isPrimeMillerRabin(n)
         }
     }
 
-    private fun isPrimeMillerRabin64(n: Long): Boolean {
+    private fun isPrimeMillerRabin(n: Long): Boolean {
         // Quick checks
         if (n < 2) {
             return false
@@ -427,6 +429,10 @@ class Primes(maxNumber: Int) {
             return false
         }
 
+        return isPrimeMillerRabinLarge(n)
+    }
+
+    private fun isPrimeMillerRabinLarge(n: Long): Boolean {
         // Write n-1 = 2^s * d
         val d = (n - 1)
         val s = d.countTrailingZeroBits() // Kotlin standard library
@@ -447,7 +453,7 @@ class Primes(maxNumber: Int) {
         return true // Probably prime (actually certain for 64-bit n)
     }
 
-    private fun modexp(base: Long, exp: Long, m: Long): Long {
+    private fun modExp(base: Long, exp: Long, m: Long): Long {
         var result = 1L
         var b = base % m
         var e = exp
@@ -466,7 +472,7 @@ class Primes(maxNumber: Int) {
      * n-1 = 2^s * d
      */
     private fun millerRabinCheck(n: Long, a: Long, d: Long, s: Int): Boolean {
-        var x = modexp(a, d, n)
+        var x = modExp(a, d, n)
         if (x == 1L || x == n - 1) return true
         for (i in 1 until s) {
             x = (x * x) % n

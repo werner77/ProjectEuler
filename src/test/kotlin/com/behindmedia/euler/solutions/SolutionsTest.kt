@@ -1,5 +1,6 @@
 package com.behindmedia.euler.solutions
 
+import com.behindmedia.euler.common.read
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -44,6 +45,13 @@ class SolutionsTest {
         val solution = PrimePairSets().run()
         println(solution)
         assertEquals(26033, solution)
+    }
+
+    @Test
+    fun pokerHands() {
+        val input = read("/pokerhands.txt")
+        val solution = PokerHands().run(input = input)
+        println(solution)
     }
 
 }
