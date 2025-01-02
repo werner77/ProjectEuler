@@ -19,7 +19,6 @@
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.compiler.apiVersion>2.1</kotlin.compiler.apiVersion>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-        <junit.version>4.13.2</junit.version>
         <kotlinx-serialization.version>1.7.3</kotlinx-serialization.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -50,12 +49,6 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit</artifactId>
             <version>${kotlin.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -332,13 +332,17 @@ fun Long.pow(exp: Int): Long {
 }
 
 class Primes(maxNumber: Int) {
-    private val sieves = sieve(maxNumber)
+    private val sieves: IntArray
+    val values: List<Int>
 
-    private fun sieve(n: Int): IntArray {
+    init {
+        val primes = mutableListOf<Int>()
+        val n = maxNumber
         val sieves = IntArray(n + 1) { 0 }
         var i = 2
         while (i * i <= n) {
             if (sieves[i] == 0) {
+                primes += i
                 var k = i * i
                 while (k <= n) {
                     if (sieves[k] == 0) {
@@ -349,7 +353,14 @@ class Primes(maxNumber: Int) {
             }
             i++
         }
-        return sieves
+        while(i <= n) {
+            if (sieves[i] == 0) {
+                primes += i
+            }
+            i++
+        }
+        this.values = primes
+        this.sieves = sieves
     }
 
     fun getPrimeFactors(n: Int): Set<Map.Entry<Int, Int>> {
@@ -390,9 +401,79 @@ class Primes(maxNumber: Int) {
         return result
     }
 
-    fun isPrime(n: Int): Boolean {
-        val factors = getPrimeFactors(n)
-        return factors.size == 1 && factors.single().value == 1
+    fun isPrime(n: Long): Boolean {
+        if (n <= 1L) {
+            return false
+        }
+        if (n < sieves.size) {
+            return sieves[n.toInt()] == 0
+        } else {
+            return isPrimeMillerRabin64(n)
+        }
+    }
+
+    private fun isPrimeMillerRabin64(n: Long): Boolean {
+        // Quick checks
+        if (n < 2) {
+            return false
+        }
+        // Hardcode small prime checks
+        val smallPrimes = listOf<Long>(2, 3, 5, 7, 11, 13, 17, 19, 23)
+        if (smallPrimes.contains(n)) {
+            return true
+        }
+        // If divisible by any small prime, not prime
+        if (smallPrimes.any { n % it == 0L } ) {
+            return false
+        }
+
+        // Write n-1 = 2^s * d
+        val d = (n - 1)
+        val s = d.countTrailingZeroBits() // Kotlin standard library
+        val dOdd = d shr s               // d // 2^s
+
+        // Deterministic bases for testing 64-bit range
+        val testBases = listOf(2L, 325L, 9375L, 28178L, 450775L, 9780504L, 1795265022L)
+
+        // Check each base
+        for (a in testBases) {
+            if (a % n == 0L) {
+                return true
+            }  // base is effectively 0 mod n, skip
+            if (!millerRabinCheck(n, a, dOdd, s)) {
+                return false // Composite
+            }
+        }
+        return true // Probably prime (actually certain for 64-bit n)
+    }
+
+    private fun modexp(base: Long, exp: Long, m: Long): Long {
+        var result = 1L
+        var b = base % m
+        var e = exp
+        while (e > 0) {
+            if ((e and 1) == 1L) {
+                result = (result * b) % m
+            }
+            b = (b * b) % m
+            e = e shr 1
+        }
+        return result
+    }
+
+    /**
+     * One round of Miller-Rabin with base 'a'.
+     * n-1 = 2^s * d
+     */
+    private fun millerRabinCheck(n: Long, a: Long, d: Long, s: Int): Boolean {
+        var x = modexp(a, d, n)
+        if (x == 1L || x == n - 1) return true
+        for (i in 1 until s) {
+            x = (x * x) % n
+            if (x == n - 1) return true
+            if (x == 1L) return false
+        }
+        return false
     }
 }
 
@@ -457,6 +538,14 @@ value class SafeLong(val value: Long) : Comparable<SafeLong> {
 
     override fun compareTo(other: SafeLong): Int {
         return value.compareTo(other.value)
+    }
+
+    fun toInt(): Int {
+        val result = this.value.toInt()
+        checkOverflow {
+            this.value != result.toLong()
+        }
+        return result
     }
 }
 
